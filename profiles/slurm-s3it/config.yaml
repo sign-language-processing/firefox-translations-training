@@ -1,0 +1,36 @@
+cluster: "submit.py"
+cluster-status: "status.py"
+jobscript: "jobscript.sh"
+jobs: 100
+default-resources:
+    - threads=1
+    - mem_mb=5980
+    - time="1:00:00"
+
+restart-times: 0
+immediate-submit: false
+verbose: false
+max-jobs-per-second: 1
+max-status-checks-per-second: 10
+local-cores: 1
+latency-wait: 60
+rerun-incomplete: true  # recomended for cluster submissions
+keep-going: false
+use-singularity: true
+use-conda: true
+resources: gpu=8
+cores: 48
+cache: false
+reason: true
+# if CPU nodes don't have access to cuda dirs, use
+# export CUDA_DIR=$(CUDA_DIR); $(SNAKEMAKE) ...
+# singularity-args: "--bind $(SHARED_ROOT),/tmp --nv --containall"
+singularity-args: "--bind /home/amoryo/data/bergamot --nv --containall"
+config:
+  - deps=false
+  - root=/home/amoryo/data/bergamot
+  - cudnn=/cudnn
+  - workspace=8000
+  - numgpus=8
+  - mariancmake=""
+  - gpus=""

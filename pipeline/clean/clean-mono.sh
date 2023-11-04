@@ -31,10 +31,11 @@ mkdir -p "${dir}"
 ######################################################################
 echo "### Basic preprocessing"
 test -s "${output_prefix}.${lang}.nrm.${ARTIFACT_EXT}" ||
-  ${COMPRESSION_CMD} -dc "${input_prefix}.${lang}.${ARTIFACT_EXT}" |
-  parallel --no-notice --pipe -k -j "${threads}" --block 50M \
-    "perl tools/deescape-special-chars.perl | perl tools/remove-non-printing-char.perl" |
-  ${COMPRESSION_CMD} -c >"${output_prefix}.${lang}.nrm.${ARTIFACT_EXT}"
+#  ${COMPRESSION_CMD} -dc "${input_prefix}.${lang}.${ARTIFACT_EXT}" |
+#  parallel --no-notice --pipe -k -j "${threads}" --block 50M \
+#    "perl tools/deescape-special-chars.perl | perl tools/remove-non-printing-char.perl" |
+#  ${COMPRESSION_CMD} -c >"${output_prefix}.${lang}.nrm.${ARTIFACT_EXT}"
+cp "${input_prefix}.${lang}.${ARTIFACT_EXT}" "${output_prefix}.${lang}.nrm.${ARTIFACT_EXT}"
 
 #####################################################################
 echo "### Apply monolingual fixes"
@@ -51,23 +52,25 @@ fi
 ######################################################################
 echo "### Language identification"
 test -s "${output_prefix}.${lang}.langid.${ARTIFACT_EXT}" ||
-  # langid_fasttext.py will download this file if it is not already present. When it runs in
-  # parallel, this will typically cause the file to be corrupt.
-  test -s tools/lid.176.bin || wget -O tools/lid.176.bin https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin
-  ${COMPRESSION_CMD} -dc "${output_prefix}.${lang}.monofix.${ARTIFACT_EXT}" |
-  # memory intensive
-  parallel --no-notice --pipe -k -j "$(echo "${threads}"/4 | bc)" --block 50M "python3 tools/langid_fasttext.py" |
-  grep -P "^${lang}\t" | cut -f2 |
-  ${COMPRESSION_CMD} >"${output_prefix}.${lang}.langid.${ARTIFACT_EXT}"
+#  # langid_fasttext.py will download this file if it is not already present. When it runs in
+#  # parallel, this will typically cause the file to be corrupt.
+#  test -s tools/lid.176.bin || wget -O tools/lid.176.bin https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin
+#  ${COMPRESSION_CMD} -dc "${output_prefix}.${lang}.monofix.${ARTIFACT_EXT}" |
+#  # memory intensive
+#  parallel --no-notice --pipe -k -j "$(echo "${threads}"/4 | bc)" --block 50M "python3 tools/langid_fasttext.py" |
+#  grep -P "^${lang}\t" | cut -f2 |
+#  ${COMPRESSION_CMD} >"${output_prefix}.${lang}.langid.${ARTIFACT_EXT}"
+cp "${output_prefix}.${lang}.monofix.${ARTIFACT_EXT}" "${output_prefix}.${lang}.langid.${ARTIFACT_EXT}"
 
 ######################################################################
 echo "### Rule-based filtering"
 
-${COMPRESSION_CMD} -dc "${output_prefix}.${lang}.langid.${ARTIFACT_EXT}" |
-parallel --no-notice --pipe -k -j "${threads}" --block 50M \
-  "python3 tools/clean_mono.py -l ${lang} --debug" \
-  2>"${output_prefix}.${lang}.clean.debug.txt" |
-${COMPRESSION_CMD} >"${output_prefix}.${lang}.${ARTIFACT_EXT}"
+#${COMPRESSION_CMD} -dc "${output_prefix}.${lang}.langid.${ARTIFACT_EXT}" |
+#parallel --no-notice --pipe -k -j "${threads}" --block 50M \
+#  "python3 tools/clean_mono.py -l ${lang} --debug" \
+#  2>"${output_prefix}.${lang}.clean.debug.txt" |
+#${COMPRESSION_CMD} >"${output_prefix}.${lang}.${ARTIFACT_EXT}"
+cp "${output_prefix}.${lang}.langid.${ARTIFACT_EXT}" "${output_prefix}.${lang}.${ARTIFACT_EXT}"
 
 test -s "${output_prefix}.${lang}.${ARTIFACT_EXT}" || exit 1
 

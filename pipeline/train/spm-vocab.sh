@@ -28,6 +28,7 @@ ${COMPRESSION_CMD} -dc "${corpus_src}" >"${vocab_dir}/data.src.txt"
 ${COMPRESSION_CMD} -dc "${corpus_trg}" >"${vocab_dir}/data.trg.txt"
 
 "${MARIAN}/spm_train" --bos_id=-1 --eos_id=0 --unk_id=1 --user_defined_symbols="" \
+  --model_type="word" --split_by_number=0 --split_by_unicode_script=0 \
   --model_prefix="${vocab_dir}/vocab" --vocab_size="${vocab_size}" \
   --input="${vocab_dir}/data.src.txt,${vocab_dir}/data.trg.txt" \
   --input_sentence_size="${sample_size}" --shuffle_input_sentence=true \

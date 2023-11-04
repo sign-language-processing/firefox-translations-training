@@ -1,4 +1,7 @@
-# Firefox Translations training
+# Firefox Translations training 
+
+(Modified for [sign language machine translation with SignWriting](https://github.com/sign-language-processing/signbank-plus)) 
+
 Training pipelines for Firefox Translations machine translation models.
 
 The trained models are hosted in [firefox-translations-models](https://github.com/mozilla/firefox-translations-models/) repository,

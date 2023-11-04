@@ -35,10 +35,11 @@ echo "### Cleaning ${input_prefix}"
 echo "### Basic preprocessing"
 for lng in "${SRC}" "${TRG}"; do
   test -s "${output_prefix}.${lng}.nrm.${ARTIFACT_EXT}" ||
-    ${COMPRESSION_CMD} -dc "${input_prefix}.${lng}.${ARTIFACT_EXT}" |
-    parallel --no-notice --pipe -k -j "${threads}" --block 50M \
-      "perl tools/deescape-special-chars.perl | perl tools/remove-non-printing-char.perl" |
-    ${COMPRESSION_CMD} >"${output_prefix}.${lng}.nrm.${ARTIFACT_EXT}"
+#    ${COMPRESSION_CMD} -dc "${input_prefix}.${lng}.${ARTIFACT_EXT}" |
+#    parallel --no-notice --pipe -k -j "${threads}" --block 50M \
+#      "perl tools/deescape-special-chars.perl | perl tools/remove-non-printing-char.perl" |
+#    ${COMPRESSION_CMD} >"${output_prefix}.${lng}.nrm.${ARTIFACT_EXT}"
+    cp "${input_prefix}.${lng}.${ARTIFACT_EXT}" "${output_prefix}.${lng}.nrm.${ARTIFACT_EXT}"
 done
 
 #####################################################################
@@ -70,26 +71,26 @@ test -s "${output_prefix}.${SRC}${TRG}.fix.${ARTIFACT_EXT}" ||
 ######################################################################
 echo "### Rule-based filtering"
 test -s "${output_prefix}.${SRC}${TRG}.rule-based.${ARTIFACT_EXT}" ||
-  ${COMPRESSION_CMD} -dc "${output_prefix}.${SRC}${TRG}.fix.${ARTIFACT_EXT}" |
-  parallel --no-notice --pipe -k -j "${threads}" --block 50M \
-    "python3 tools/clean_parallel.py -l1 ${SRC} -l2 ${TRG} --debug" \
-    2>"${output_prefix}.${SRC}${TRG}.clean.debug.txt" |
-  ${COMPRESSION_CMD} >"${output_prefix}.${SRC}${TRG}.rule-based.${ARTIFACT_EXT}"
-
+#  ${COMPRESSION_CMD} -dc "${output_prefix}.${SRC}${TRG}.fix.${ARTIFACT_EXT}" |
+#  parallel --no-notice --pipe -k -j "${threads}" --block 50M \
+#    "python3 tools/clean_parallel.py -l1 ${SRC} -l2 ${TRG} --debug" \
+#    2>"${output_prefix}.${SRC}${TRG}.clean.debug.txt" |
+#  ${COMPRESSION_CMD} >"${output_prefix}.${SRC}${TRG}.rule-based.${ARTIFACT_EXT}"
+cp "${output_prefix}.${SRC}${TRG}.fix.${ARTIFACT_EXT}" "${output_prefix}.${SRC}${TRG}.rule-based.${ARTIFACT_EXT}"
 ######################################################################
 echo "### Language identification"
 test -s "${output_prefix}.${SRC}${TRG}.langid.${ARTIFACT_EXT}" ||
-  # langid_fasttext.py will download this file if it is not already present. When it runs in
-  # parallel, this will typically cause the file to be corrupt.
-  test -s tools/lid.176.bin || wget -O tools/lid.176.bin https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin
-  ${COMPRESSION_CMD} -dc "${output_prefix}.${SRC}${TRG}.rule-based.${ARTIFACT_EXT}" |
-  # memory intensive
-  parallel --no-notice --pipe -k -j "$(echo "${threads}"/4 | bc)" --block 50M \
-    "python3 -Wi tools/langid_fasttext.py -f 1 | python3 -Wi tools/langid_fasttext.py -f 1" |
-  grep -P "^${SRC}\t${TRG}\t" |
-  cut -f3,4 |
-  ${COMPRESSION_CMD} >"${output_prefix}.${SRC}${TRG}.langid.${ARTIFACT_EXT}"
-
+#  # langid_fasttext.py will download this file if it is not already present. When it runs in
+#  # parallel, this will typically cause the file to be corrupt.
+#  test -s tools/lid.176.bin || wget -O tools/lid.176.bin https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin
+#  ${COMPRESSION_CMD} -dc "${output_prefix}.${SRC}${TRG}.rule-based.${ARTIFACT_EXT}" |
+#  # memory intensive
+#  parallel --no-notice --pipe -k -j "$(echo "${threads}"/4 | bc)" --block 50M \
+#    "python3 -Wi tools/langid_fasttext.py -f 1 | python3 -Wi tools/langid_fasttext.py -f 1" |
+#  grep -P "^${SRC}\t${TRG}\t" |
+#  cut -f3,4 |
+#  ${COMPRESSION_CMD} >"${output_prefix}.${SRC}${TRG}.langid.${ARTIFACT_EXT}"
+cp "${output_prefix}.${SRC}${TRG}.rule-based.${ARTIFACT_EXT}" "${output_prefix}.${SRC}${TRG}.langid.${ARTIFACT_EXT}"
 ######################################################################
 echo "### Removing leading and repetitive white spaces"
 
