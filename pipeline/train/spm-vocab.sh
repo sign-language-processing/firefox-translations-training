@@ -15,6 +15,11 @@ sample_size=$4
 threads=$5
 vocab_size="${6:-32000}"
 
+if (( vocab_size % 8 != 0 )); then
+  echo "Error: vocab_size must be a multiple of 8 (https://github.com/mozilla/firefox-translations-training/issues/249)"
+  exit 1
+fi
+
 if [ "$threads" = "auto" ]; then
   threads=$(nproc)
 fi
@@ -26,6 +31,11 @@ mkdir -p "${vocab_dir}"
 
 ${COMPRESSION_CMD} -dc "${corpus_src}" >"${vocab_dir}/data.src.txt"
 ${COMPRESSION_CMD} -dc "${corpus_trg}" >"${vocab_dir}/data.trg.txt"
+
+# Add 8 empty words to the vocabulary to make it possible to make a multiple of 8
+for i in {1..8}; do
+  echo "unk$i" >> "${vocab_dir}/data.src.txt"
+done
 
 "${MARIAN}/spm_train" --bos_id=-1 --eos_id=0 --unk_id=1 --user_defined_symbols="" \
   --model_type="word" --split_by_number=0 --split_by_unicode_script=0 \
