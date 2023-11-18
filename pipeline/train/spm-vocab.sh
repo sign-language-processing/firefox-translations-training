@@ -14,6 +14,7 @@ vocab_output=$3
 sample_size=$4
 threads=$5
 vocab_size="${6:-32000}"
+spm_user_defined_symbols="${7:-""}"
 
 if (( vocab_size % 8 != 0 )); then
   echo "Error: vocab_size must be a multiple of 8 (https://github.com/mozilla/firefox-translations-training/issues/249)"
@@ -37,8 +38,9 @@ for i in {1..8}; do
   echo "unk$i" >> "${vocab_dir}/data.src.txt"
 done
 
-"${MARIAN}/spm_train" --bos_id=-1 --eos_id=0 --unk_id=1 --user_defined_symbols="" \
-  --model_type="word" --split_by_number=0 --split_by_unicode_script=0 \
+"${MARIAN}/spm_train" --bos_id=-1 --eos_id=0 --unk_id=1 \
+  --user_defined_symbols="${spm_user_defined_symbols}" \
+  --split_by_number=0 --split_by_unicode_script=0 \
   --model_prefix="${vocab_dir}/vocab" --vocab_size="${vocab_size}" \
   --input="${vocab_dir}/data.src.txt,${vocab_dir}/data.trg.txt" \
   --input_sentence_size="${sample_size}" --shuffle_input_sentence=true \
