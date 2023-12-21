@@ -427,7 +427,7 @@ if not vocab_pretrained:
         output: vocab_path
         params: prefix_train=clean_corpus_prefix,prefix_test=f"{original}/devset"
         shell: '''bash pipeline/train/spm-vocab.sh "{input.corpus_src}" "{input.corpus_trg}" "{output}" {spm_sample_size} \
-                    {threads} {spm_vocab_size} "{spm_user_defined_symbols}" >> {log} 2>&1'''
+                    {threads} {spm_vocab_size} '{spm_user_defined_symbols}' >> {log} 2>&1'''
 
 if do_train_backward:
     rule train_backward:
