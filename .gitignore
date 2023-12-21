@@ -136,3 +136,9 @@ dmypy.json
 .models
 .bin
 .snakemake
+
+/data
+
+# Jekyll files.
+/docs/_site
+.jekyll-cache

@@ -2,6 +2,8 @@
 ##
 # Cleans corpus using bicleaner-ai or bicleaner
 #
+# See:
+#   docs/bicleaner.md
 
 set -x
 set -euo pipefail
@@ -33,7 +35,7 @@ fi
 output_dir=$(dirname "${output_prefix}")
 mkdir -p "${output_dir}"
 
-if [ "${bicleaner_threshold}" == "0" ]; then
+if [ "${bicleaner_threshold}" == "0" ] || [ "${bicleaner_threshold}" == "0.0" ]; then
   echo "Threshold is 0, skipping filtering"
   cp "${corpus_prefix}.${SRC}.${ARTIFACT_EXT}" "${output_prefix}.${SRC}.${ARTIFACT_EXT}"
   cp "${corpus_prefix}.${TRG}.${ARTIFACT_EXT}" "${output_prefix}.${TRG}.${ARTIFACT_EXT}"

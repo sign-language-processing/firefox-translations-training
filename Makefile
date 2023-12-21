@@ -109,7 +109,7 @@ dag:
 	  --profile=profiles/$(PROFILE) \
 	  --configfile $(CONFIG) \
 	  --dag \
-	  | dot -Tpdf > DAG.pdf
+	  | dot -Tsvg > DAG.svg
 
 
 
@@ -119,13 +119,13 @@ dag:
 ################################################
 
 # OpusCleaner is a data cleaner for training corpus
-# More details are in docs/opus-cleaner.md
+# More details are in docs/cleaning.md
 opuscleaner-ui:
 	poetry install --only opuscleaner
 	opuscleaner-server serve --host=0.0.0.0 --port=8000
 
 # Utils to find corpus etc
-install utils:
+install-utils:
 	poetry install --only utils
 
 # Black is a code formatter for Python files. Running this command will check that
@@ -162,17 +162,56 @@ fix-all:
 	make black-fix
 	make lint-fix
 
-# Validates Task Cluster task graph locally
+# Run unit tests
+run-tests:
+	poetry install --only tests --only utils
+	PYTHONPATH=$$(pwd) poetry run pytest tests -vv
+
+# Validates Taskcluster task graph locally
 validate-taskgraph:
 	pip3 install -r taskcluster/requirements.txt && taskgraph full
 
+# Generates diffs of the full taskgraph against $BASE_REV. Any parameters that were
+# different between the current code and $BASE_REV will have their diffs logged to $OUTPUT_DIR.
+diff-taskgraph:
+ifndef OUTPUT_DIR
+	$(error OUTPUT_DIR must be defined)
+endif
+ifndef BASE_REV
+	$(error BASE_REV must be defined)
+endif
+	pip3 install -r taskcluster/requirements.txt
+	taskgraph full -p "taskcluster/test/params" -o "$(OUTPUT_DIR)" --diff "$(BASE_REV)" -J
+
 # Downloads Marian training logs for a Taskcluster task group
 download-logs:
+	mkdir -p data/taskcluster-logs
 	poetry install --only taskcluster
-	python utils/tc_marian_logs.py --output=$$(pwd)/logs --task-group-id=$(LOGS_TASK_GROUP)
+	poetry run python utils/tc_marian_logs.py \
+		--output=data/taskcluster-logs/$(LOGS_TASK_GROUP) \
+		--task-group-id=$(LOGS_TASK_GROUP)
 
 # Runs Tensorboard for Marian training logs in ./logs directory
 # then go to http://localhost:6006
 tensorboard:
+	mkdir -p data/tensorboard-logs
 	poetry install --only tensorboard
-	marian-tensorboard --offline -f logs/*.log
+	poetry run marian-tensorboard \
+		--offline \
+		--log-file data/taskcluster-logs/**/*.log \
+		--work-dir data/tensorboard-logs
+
+# Run the GitHub pages Jekyll theme locally.
+# TODO - This command would be better to be run in a docker container, as the
+# requirement for rbenv is a little brittle.
+serve-docs:
+	echo "This command requires"
+	echo "  rbenv: https://github.com/rbenv/rbenv"
+	echo "  rbenv install 3.2.2"
+
+	cd docs                         \
+	&& eval "$$(rbenv init - make)" \
+	&& rbenv local 3.2.2            \
+	&& rbenv shell                  \
+	&& bundle install               \
+	&& bundle exec jekyll serve

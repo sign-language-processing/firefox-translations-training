@@ -20,17 +20,14 @@ def get_defaults(_):
                 "src": "ru",
                 "trg": "en",
                 "teacher-ensemble": 1,
-                # Used for providing a pretrained backward model. We do not support this yet.
-                "backward-model": "NOT-YET-SUPPORTED",
-                # Used for providing a pretrained vocab. We do not support this yet.
-                "vocab": "NOT-YET-SUPPORTED",
                 "mono-max-sentences-trg": 10000,
                 "mono-max-sentences-src": 10000,
-                "split-length": 5000,
                 "spm-sample-size": 10000,
                 "spm-vocab-size": 1000,
                 "best-model": "chrf",
-                "use-opuscleaner": "true",
+                # todo: fix opuscleaner build and enable it
+                #  https://github.com/mozilla/firefox-translations-training/issues/292
+                "use-opuscleaner": "false",
                 "bicleaner": {
                     "default-threshold": 0.5,
                     "dataset-thresholds": {
@@ -42,39 +39,31 @@ def get_defaults(_):
             "marian-args": {
                 "training-backward": {
                     "disp-freq": "1",
-                    "save-freq": "5",
-                    "valid-freq": "10",
-                    "after": "10u",
+                    "save-freq": "25",
+                    "valid-freq": "50",
+                    "after": "50u",
                     "dim-vocabs": "1000 1000",
                 },
-                "training-teacher-base": {
+                "training-teacher": {
                     "disp-freq": "1",
-                    "save-freq": "5",
-                    "valid-freq": "10",
-                    "after": "10u",
-                    "dim-vocabs": "1000 1000",
-                    "task": "transformer-base",
-                },
-                "training-teacher-finetuned": {
-                    "disp-freq": "1",
-                    "save-freq": "5",
-                    "valid-freq": "10",
-                    "after": "10u",
+                    "save-freq": "25",
+                    "valid-freq": "50",
+                    "after": "50u",
                     "dim-vocabs": "1000 1000",
                     "task": "transformer-base",
                 },
                 "training-student": {
                     "disp-freq": "1",
-                    "save-freq": "5",
-                    "valid-freq": "10",
-                    "after": "10u",
+                    "save-freq": "25",
+                    "valid-freq": "50",
+                    "after": "50u",
                     "dim-vocabs": "1000 1000",
                 },
                 "training-student-finetuned": {
                     "disp-freq": "1",
-                    "save-freq": "5",
-                    "valid-freq": "10",
-                    "after": "10u",
+                    "save-freq": "25",
+                    "valid-freq": "50",
+                    "after": "50u",
                     "dim-vocabs": "1000 1000",
                 },
                 "decoding-backward": {
@@ -95,7 +84,7 @@ def get_defaults(_):
                 ],
                 "devtest": [
                     "flores_dev",
-                    "sacrebleu_wmt19",
+                    "sacrebleu_aug-mix_wmt19",
                 ],
                 "test": [
                     "flores_devtest",
@@ -121,8 +110,7 @@ extend_parameters_schema(
             Required("target-stage"): str,
             Required("marian-args"): {
                 Optional("training-backward"): {str: str},
-                Optional("training-teacher-base"): {str: str},
-                Optional("training-teacher-finetuned"): {str: str},
+                Optional("training-teacher"): {str: str},
                 Optional("training-student"): {str: str},
                 Optional("training-student-finetuned"): {str: str},
                 Optional("decoding-backward"): {str: str},
@@ -133,11 +121,8 @@ extend_parameters_schema(
                 Required("src"): str,
                 Required("trg"): str,
                 Required("teacher-ensemble"): int,
-                Required("backward-model"): str,
-                Required("vocab"): str,
                 Required("mono-max-sentences-trg"): int,
                 Required("mono-max-sentences-src"): int,
-                Required("split-length"): int,
                 Required("spm-sample-size"): int,
                 Optional("spm-vocab-size"): int,
                 Required("best-model"): str,
@@ -146,6 +131,18 @@ extend_parameters_schema(
                     Required("default-threshold"): float,
                     Optional("dataset-thresholds"): {
                         str: float,
+                    },
+                },
+                Optional("pretrained-models"): {
+                    Optional("train-teacher"): {
+                        Required("urls"): [str],
+                        Required("mode"): str,
+                        Required("type"): str,
+                    },
+                    Optional("train-backwards"): {
+                        Required("urls"): [str],
+                        Required("mode"): str,
+                        Required("type"): str,
                     },
                 },
             },

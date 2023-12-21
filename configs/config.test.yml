@@ -13,7 +13,7 @@ experiment:
 
   mono-max-sentences-src: 100000
   mono-max-sentences-trg: 200000
-  split-length: 100000
+  split-chunks: 10
   spm-sample-size: 100000
 
   best-model: chrf
@@ -31,12 +31,7 @@ marian-args:
     save-freq: 100
     valid-freq: 100
     after: 500u
-  training-teacher-base:
-    disp-freq: 10
-    save-freq: 100
-    valid-freq: 100
-    after: 500u
-  training-teacher-finetuned:
+  training-teacher:
     disp-freq: 10
     save-freq: 100
     valid-freq: 100

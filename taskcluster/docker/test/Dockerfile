@@ -3,6 +3,9 @@ LABEL maintainer="Mozilla Release Engineering <release+docker@mozilla.com>"
 
 RUN apt-get update -qq \
     && apt-get install -y wget \
+    && apt-get install -y pigz \
+    && apt-get install -y unzip \
+    && apt-get install -y zstd \
     && apt-get clean
 
 VOLUME /builds/worker/checkouts
