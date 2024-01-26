@@ -3,7 +3,6 @@ import os
 import subprocess
 
 from snakemake.utils import min_version
-from pipeline.bicleaner import packs
 
 
 min_version("6.6.1")
