@@ -40,10 +40,10 @@ tasks:
                 - fetches
                 - attributes
         worker-type: b-cpu-largedisk
-        expires-after: "90 days"
         worker:
             docker-image: {"in-tree": "train"}
-            max-run-time: 86400
+            # 7 days
+            max-run-time: 604800
             artifacts:
                 - name: public/build
                   path: /builds/worker/artifacts
